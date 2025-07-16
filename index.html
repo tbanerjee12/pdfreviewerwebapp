@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Paper Reviewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            width: 100%;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .bio-section {
+            margin-bottom: 40px;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .bio-section h2 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .bio-section p {
+            color: #718096;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #cbd5e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .char-count {
+            text-align: right;
+            margin-top: 10px;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .upload-box {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-box:hover {
+            border-color: #764ba2;
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .upload-box.dragover {
+            background: #e3e4f3;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e6fffa;
+            border-radius: 10px;
+            color: #234e52;
+            display: none;
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .analyze-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .review-section {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .reviewer-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .reviewer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .reviewer-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .reviewer-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 24px;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .reviewer-title {
+            font-size: 24px;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .reviewer-expertise {
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .review-content {
+            color: #4a5568;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .review-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .review-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .review-content::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 10px;
+        }
+
+        .review-content::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .warning-message {
+            background: #fef5e7;
+            color: #7c4c1f;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .reviewer-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .reviewer-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Research Paper Reviewer</h1>
+        
+        <div class="bio-section">
+            <h2>📝 Your Academic Biography (Optional)</h2>
+            <p>Provide your academic biography for a personalized review perspective, or leave blank to use our default AI Security expert reviewer.</p>
+            <textarea 
+                id="bioInput" 
+                placeholder="Leave blank for default reviewer, or enter your biography. Example: I am an Assistant Professor in Computer Science specializing in machine learning and natural language processing. My research focuses on developing interpretable AI systems for healthcare applications..."
+                maxlength="2000"
+            ></textarea>
+            <div class="char-count">
+                <span id="charCount">0</span> / 2000 characters
+                <span style="margin-left: 20px; color: #667eea;">
+                    <em>Default: AI Safety & NLP Expert</em>
+                </span>
+            </div>
+        </div>
+        
+        <div class="upload-section">
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">Drag & Drop your PDF here</div>
+                <div class="upload-subtext">or click to browse</div>
+                <input type="file" id="fileInput" accept=".pdf">
+            </div>
+            
+            <div class="file-info" id="fileInfo">
+                <strong>Selected file:</strong> <span id="fileName"></span>
+            </div>
+            
+            <button class="analyze-btn" id="analyzeBtn">Analyze Paper</button>
+            
+            <div class="warning-message" id="warningMessage">
+                Please provide your academic biography above before analyzing the paper.
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your research paper... This may take a few minutes.</p>
+        </div>
+        
+        <div class="review-section" id="reviewSection">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #2d3748;">Expert Review</h2>
+            
+            <div class="reviewer-card">
+                <div class="reviewer-header">
+                    <div class="reviewer-icon">👨‍🔬</div>
+                    <div>
+                        <div class="reviewer-title">Personalized Review</div>
+                        <div class="reviewer-expertise">Based on your academic profile</div>
+                    </div>
+                </div>
+                <div class="review-content" id="reviewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadBox = document.getElementById('uploadBox');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const reviewSection = document.getElementById('reviewSection');
+        const errorMessage = document.getElementById('errorMessage');
+        const warningMessage = document.getElementById('warningMessage');
+        const bioInput = document.getElementById('bioInput');
+        const charCount = document.getElementById('charCount');
+        
+        let selectedFile = null;
+
+        // Character count for biography
+        bioInput.addEventListener('input', () => {
+            const count = bioInput.value.length;
+            charCount.textContent = count;
+        });
+
+        // Click to upload
+        uploadBox.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Drag and drop functionality
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                handleFile(files[0]);
+            } else {
+                showError('Please upload a PDF file.');
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileInfo.style.display = 'block';
+            analyzeBtn.style.display = 'inline-block';
+            errorMessage.style.display = 'none';
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Analyze button click
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                showError('Please select a PDF file first.');
+                return;
+            }
+
+            const biography = bioInput.value.trim();
+            
+            const formData = new FormData();
+            formData.append('pdf', selectedFile);
+            formData.append('biography', biography);
+
+            analyzeBtn.disabled = true;
+            loading.style.display = 'block';
+            reviewSection.style.display = 'none';
+            errorMessage.style.display = 'none';
+            warningMessage.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:5001/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Analysis failed');
+                }
+
+                const data = await response.json();
+                
+                // Update reviewer expertise label based on whether custom bio was provided
+                const expertiseLabel = document.querySelector('.reviewer-expertise');
+                if (biography.length > 0) {
+                    expertiseLabel.textContent = 'Based on your academic profile';
+                } else {
+                    expertiseLabel.textContent = 'AI Security & LLM Expert';
+                }
+                
+                // Display review
+                document.getElementById('reviewContent').textContent = data.review || 'No review available';
+                
+                reviewSection.style.display = 'block';
+            } catch (error) {
+                showError('Error analyzing the paper: ' + error.message);
+                console.error('Error:', error);
+            } finally {
+                analyzeBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
